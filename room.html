@@ -285,6 +285,16 @@
         /* Show the course info at the top */
         document.getElementById('room-title').textContent = courseCode;
 
+const courseNames = {
+    'CSC-151': 'Java Programming',
+    'MAT-171': 'Precalculus Algebra',
+    'ENG-111': 'Writing & Inquiry',
+    'BUS-110': 'Introduction to Business',
+    'PSY-150': 'General Psychology',
+    'ACC-120': 'Principles of Accounting'
+};
+document.getElementById('room-subtitle').textContent = (courseNames[courseCode] || courseCode) + ' — Study Room';
+
         /* List of fake students in the lobby - makes it feel alive */
         const students = [
             { name: 'Maria G.', level: 4, color: '#00ffff' },
