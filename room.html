@@ -319,7 +319,7 @@ document.getElementById('room-subtitle').textContent = (courseNames[courseCode] 
                             <span class="active-dot"></span>${student.name}
                         </div>
                         <div class="student-level">⚡ Level ${student.level}</div>
-                        <button class="btn-connect" onclick="connect('${student.name}')">
+                      <button class="btn-connect" onclick="connect('${student.name}', '${student.level}')">
                             CONNECT
                         </button>
                     </div>
@@ -356,9 +356,11 @@ document.getElementById('room-subtitle').textContent = (courseNames[courseCode] 
         }
 
         /* What happens when you click CONNECT on a student */
-        function connect(name) {
-            alert('⚡ Connection request sent to ' + name + '!');
-        }
+      function connect(name, level) {
+    localStorage.setItem('view-student', name);
+    localStorage.setItem('view-student-level', level);
+    window.location.href = 'profile.html';
+}
 
         /* Goes back to the lobby */
         function goBack() {
