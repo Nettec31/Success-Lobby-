@@ -1,0 +1,11 @@
+{
+  "SS-1": {
+    "student_id": "USR-1",
+    "course_id": "CS-1",
+    "location_id": "LC-1",
+    "status": "active",
+    "note": "I have the textbook!",
+    "started_at": "2024-06-01T12:00:00Z",
+    "expires_at": "2024-06-01T14:00:00Z"
+  }
+}
