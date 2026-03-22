@@ -359,12 +359,12 @@ document.getElementById('room-subtitle').textContent = (courseNames[courseCode] 
       function connect(name, level) {
     localStorage.setItem('view-student', name);
     localStorage.setItem('view-student-level', level);
-    window.location.href = 'profile.html';
+    window.location.href = '/profile';
 }
 
         /* Goes back to the lobby */
         function goBack() {
-            window.location.href = 'Lobby.html';
+            window.location.href = '/lobby';
         }
 
         /* Load students when page opens */
