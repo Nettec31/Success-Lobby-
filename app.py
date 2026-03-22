@@ -19,7 +19,18 @@ def index():
 def quiz():
     return send_file("quiz.html")
 
+@app.route("/lobby")
+def lobby():
+    return send_file("lobby.html")
 
+@app.route("/room")
+def lobby():
+    return send_file("room.html")
+
+@app.route("/profile")
+def lobby():
+    return send_file("profile.html")
+    
 def load_users():
     if not os.path.exists(USERS_FILE):
         return {}
