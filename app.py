@@ -17,7 +17,22 @@ STUDENT_COURSES_FILE = "App-Data/student_courses.json"
 def index():
     return send_file("cpcc_login.html")
 
+@app.route("/quiz")
+def quiz():
+    return send_file("quiz.html")
 
+@app.route("/lobby")
+def lobby():
+    return send_file("lobby.html")
+
+@app.route("/room")
+def lobby():
+    return send_file("room.html")
+
+@app.route("/profile")
+def lobby():
+    return send_file("profile.html")
+    
 def load_users():
     if not os.path.exists(USERS_FILE):
         return {}
@@ -104,16 +119,6 @@ def get_course_by_id(course_id):
 @app.route("/api/health")
 def health():
     return jsonify({"success": True, "message": "Server is running!"})
-
-@app.route("/api/emails", methods=["GET"])
-def get_all_emails():
-    """Get list of all email IDs across users"""
-    user_emails = get_user_emails()
-    return jsonify({
-        "success": True,
-        "data": user_emails,
-        "total": len(user_emails)
-    })
 
 
 @app.route("/api/register", methods=["POST"])
