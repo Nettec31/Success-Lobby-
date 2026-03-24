@@ -12,10 +12,10 @@ Many students struggle to find consistent study groups or peers within their spe
 * **Succeed Together:** Foster an environment of mutual academic support.
 
 ## 👥 The Team (Code-Avengers)
-* **Lynnette Ray:** Project Lead & UI/UX Designer
-* **Juanita:** Frontend Developer
-* **Daksh:** Backend Developer
-*  **Urangoo:** Multimedia Lead & Researcher
+* **Lynnette Ray:** Project Lead & Lead Architect
+* **Juanita:** Lead UI/UX Developer
+* **Daksh:** Technical Contributor
+*  **Urangoo:** System Architect
 
 ---
 *Developed for the CPCC Innovation Challenge.*
