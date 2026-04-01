@@ -15,7 +15,7 @@ USERS_FILE = "users.json"
 def index():
     return send_file("cpcc_login.html")
 
-@app.route("/quiz.html")
+@app.route("/quiz")
 def quiz_page():
     return send_file("quiz.html")
 
