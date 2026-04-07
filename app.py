@@ -254,7 +254,6 @@ def get_lobby():
 
     return jsonify({"success": True, "courses": result})
 
-
 if __name__ == "__main__":
     print("Server running at http://127.0.0.1:5000")
     app.run(debug=True, port=5000)
