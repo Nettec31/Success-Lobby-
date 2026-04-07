@@ -1,8 +1,10 @@
 import re
 import bcrypt
-from flask import Flask, request, jsonify, send_file
+import json
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from models import db, User
+from models import db, User, StudentCourse
+
 
 app = Flask(__name__)
 CORS(app)
@@ -19,23 +21,23 @@ with app.app_context():
 #html route
 @app.route("/")
 def index():
-    return send_file("cpcc_login.html")
+    return render_template("cpcc_login.html")
 
 @app.route("/quiz")
 def quiz():
-    return send_file("quiz.html")
+    return render_template("quiz.html")
 
 @app.route("/lobby")
 def lobby():
-    return send_file("lobby.html")
+    return render_template("lobby.html")
 
 @app.route("/room")
 def room():
-    return send_file("room.html")
+    return render_template("room.html")
 
 @app.route("/profile")
 def profile():
-    return send_file("profile.html")
+    return render_template("profile.html")
 
 #api routes
 @app.route("/api/health")
@@ -110,6 +112,148 @@ def login():
         return jsonify({"success": False, "message": "Wrong password"})
 
     return jsonify({"success": True, "message": f"Welcome back, {user.name}!", "name": user.name, "email": user.email})
+
+# Get profile info
+@app.route("/api/profile", methods=["GET"])
+def get_profile():
+    email = request.args.get("email")
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"})
+
+    courses = StudentCourse.query.filter_by(email=email).all()
+    course_list = [{"code": c.course_code, "name": c.course_name} for c in courses]
+
+    return jsonify({
+        "success": True,
+        "name": user.name,
+        "email": user.email,
+        "major": user.major or "",
+        "availability": user.availability or "",
+        "campus": user.campus or "",
+        "courses": course_list,
+        "bio": user.bio or ""
+    })
+
+
+# Save profile info
+@app.route("/api/profile", methods=["POST"])
+def save_profile():
+    data = request.get_json()
+    email = data.get("email")
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"})
+
+    user.major = data.get("major", "")
+    user.availability = data.get("availability", "")
+    user.campus = data.get("campus", "")
+    user.bio = data.get("bio", "")
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Profile saved!"})
+
+
+# Add a course
+@app.route("/api/courses/add", methods=["POST"])
+def add_student_course():
+    data = request.get_json()
+    email = data.get("email")
+    course_code = data.get("course_code", "").strip().upper()
+    course_name = data.get("course_name", "").strip()
+
+    if not email or not course_code or not course_name:
+        return jsonify({"success": False, "message": "All fields required"})
+
+    already = StudentCourse.query.filter_by(email=email, course_code=course_code).first()
+    if already:
+        return jsonify({"success": False, "message": "Already added"})
+
+    new_course = StudentCourse(email=email, course_code=course_code, course_name=course_name)
+    db.session.add(new_course)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": f"{course_code} added!"})
+
+
+# Remove a course
+@app.route("/api/courses/remove", methods=["POST"])
+def remove_student_course():
+    data = request.get_json()
+    email = data.get("email")
+    course_code = data.get("course_code", "").strip().upper()
+
+    course = StudentCourse.query.filter_by(email=email, course_code=course_code).first()
+    if not course:
+        return jsonify({"success": False, "message": "Course not found"})
+
+    db.session.delete(course)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": f"{course_code} removed!"})
+
+# Look up a course by code
+@app.route("/api/courses/lookup", methods=["GET"])
+def lookup_course():
+    code = request.args.get("code", "").strip().upper()
+
+    with open("courses.json", "r") as f:
+        courses = json.load(f)
+
+    if code not in courses:
+        return jsonify({"success": False, "message": "Course not found"})
+
+    return jsonify({"success": True, "code": code, "name": courses[code]})
+
+@app.route("/api/lobby", methods=["GET"])
+def get_lobby():
+    email = request.args.get("email")
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"success": False, "message": "User not found"})
+
+    # Get this student's enrolled courses
+    my_courses = StudentCourse.query.filter_by(email=email).all()
+
+    result = []
+    for course in my_courses:
+        # Find other students in the same course
+        others = StudentCourse.query.filter_by(course_code=course.course_code).all()
+
+        matches = []
+        for other in others:
+            if other.email == email:
+                continue  # skip yourself
+
+            other_user = User.query.filter_by(email=other.email).first()
+            if not other_user:
+                continue
+
+            # Check how well they match
+            match_score = 0
+            if other_user.availability == user.availability:
+                match_score += 1
+            if other_user.campus == user.campus:
+                match_score += 1
+
+            matches.append({
+                "name": other_user.name,
+                "availability": other_user.availability or "—",
+                "campus": other_user.campus or "—",
+                "match_score": match_score
+            })
+
+        # Sort best match first
+        matches.sort(key=lambda x: x["match_score"], reverse=True)
+
+        result.append({
+            "code": course.course_code,
+            "name": course.course_name,
+            "matches": matches
+        })
+
+    return jsonify({"success": True, "courses": result})
+
 
 if __name__ == "__main__":
     print("Server running at http://127.0.0.1:5000")
